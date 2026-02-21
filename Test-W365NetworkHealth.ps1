@@ -48,7 +48,6 @@
 
 [CmdletBinding()]
 param(
-    [ValidateSet(0, 1, 2, 3)]
     [int]$Mode = 0,
     [string]$EndpointsCSV = '',
     [string]$OutputPath = ''
@@ -393,6 +392,11 @@ Write-Host "  NOTE: Intune endpoints use a static hardcoded list per Microsoft g
 Write-Host "        The endpoints.office.com API is deprecated for Intune and returns inaccurate data." -ForegroundColor DarkGray
 
 # ── Step 2: Prompt for mode if not supplied ───────────────────────────────────
+if ($Mode -notin 0, 1, 2, 3) {
+    Write-Host "  Invalid mode '$Mode'. Please choose 1, 2, or 3." -ForegroundColor Red
+    $Mode = 0
+}
+
 if ($Mode -eq 0) {
     Write-Host ""
     Write-Host "  Which network do you want to test from?" -ForegroundColor Yellow
