@@ -48,7 +48,7 @@
 
 [CmdletBinding()]
 param(
-    [ValidateSet(1, 2, 3)]
+    [ValidateSet(0, 1, 2, 3)]
     [int]$Mode = 0,
     [string]$EndpointsCSV = '',
     [string]$OutputPath = ''
