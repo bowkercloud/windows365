@@ -10,7 +10,7 @@
     Endpoints are loaded from a companion Endpoints.csv file (recommended) or from built-in defaults.
 
     Run directly from GitHub:
-    powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/bowkercloud/windows365/main/Test-W365NetworkHealth.ps1 | iex"
+    powershell -ExecutionPolicy Bypass -Command "irm https://bowker.cloud/w365check | iex"
 
 .PARAMETER Mode
     1 = Cloud PC / Host Network
