@@ -10,7 +10,7 @@
     Endpoints are loaded from a companion Endpoints.csv file (recommended) or from built-in defaults.
 
     Run directly from GitHub:
-    powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/YOUR_REPO/main/Test-W365NetworkHealth.ps1 | iex"
+    powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/bowkercloud/windows365/main/Test-W365NetworkHealth.ps1 | iex"
 
 .PARAMETER Mode
     1 = Cloud PC / Host Network
@@ -59,7 +59,7 @@ param(
 # ─────────────────────────────────────────────────────────────────────────────
 $ScriptName     = 'Test-W365NetworkHealth'
 $ScriptVersion  = 'v1.1'
-$CSVGitHubURL   = 'https://raw.githubusercontent.com/YOUR_REPO/main/Endpoints.csv'
+$CSVGitHubURL   = 'https://raw.githubusercontent.com/bowkercloud/windows365/main/Endpoints.csv'
 $TimeoutSeconds = 5
 
 # ─────────────────────────────────────────────────────────────────────────────
