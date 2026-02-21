@@ -4,7 +4,6 @@ A PowerShell script that tests connectivity to every endpoint required for Windo
 
 Built and maintained by [Dan Bowker](https://bowker.cloud) - Microsoft MVP for Windows 365.
 
----
 ## Credit
 
 Inspired by [Shannon Fritz's original gist](https://gist.github.com/shannonfritz/4c9f1cf800f3406729a58417639736f3).
