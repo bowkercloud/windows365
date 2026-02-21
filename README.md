@@ -4,6 +4,7 @@ A PowerShell script that tests connectivity to every endpoint required for Windo
 
 Built and maintained by [Dan Bowker](https://bowker.cloud) - Microsoft MVP for Windows 365.
 
+---
 ## Credit
 
 Inspired by [Shannon Fritz's original gist](https://gist.github.com/shannonfritz/4c9f1cf800f3406729a58417639736f3).
@@ -65,8 +66,6 @@ pwsh -ExecutionPolicy Bypass -Command "irm https://bowker.cloud/w365check | iex"
 ```powershell
 powershell -ExecutionPolicy Bypass -Command "irm https://bowker.cloud/w365check | iex"
 ```
-
-> **Cloud PC note:** Windows 365 Cloud PCs may have PowerShell 7 as the default shell. If you see an error about `powershell.exe` failing to run, use the `irm | iex` form directly, or substitute `pwsh` for `powershell` in the wrapper command.
 
 **Run locally with parameters:**
 
