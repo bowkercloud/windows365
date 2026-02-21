@@ -1,8 +1,8 @@
 # Windows 365 Network Health Check
 
-A PowerShell script that tests connectivity to every endpoint required for Windows 365 and Azure Virtual Desktop — covering the Cloud PC host network, the end user client device, Intune, and Windows Autopilot.
+A PowerShell script that tests connectivity to every endpoint required for Windows 365 and Azure Virtual Desktop - covering the Cloud PC host network, the end user client device, Intune, and Windows Autopilot.
 
-Built and maintained by [Dan Bowker](https://bowker.cloud) — Microsoft MVP for Windows 365.
+Built and maintained by [Dan Bowker](https://bowker.cloud) - Microsoft MVP for Windows 365.
 
 ## Credit
 
@@ -17,11 +17,11 @@ Network connectivity issues are one of the most common causes of Windows 365 pro
 **134 endpoints** across:
 
 - Windows 365 service (provisioning, IoT hubs, registration)
-- AVD session host endpoints — required and optional
+- AVD session host endpoints - required and optional
 - End user device / client endpoints
 - Intune core service, Win32 apps, WNS push, Delivery Optimization
 - Windows Autopilot (Windows Update, NTP, TPM, diagnostics)
-- Azure Certificate Authority (CRL/OCSP — for closed/restricted networks)
+- Azure Certificate Authority (CRL/OCSP - for closed/restricted networks)
 
 ---
 
@@ -41,8 +41,8 @@ Network connectivity issues are one of the most common causes of Windows 365 pro
 |--------|---------|
 | `[ OK ]` | TCP connection succeeded |
 | `[FAIL]` | TCP connection blocked or timed out |
-| `[SKIP]` | Wildcard endpoint — cannot TCP test; verify DNS resolution manually |
-| `[INFO]` | UDP or IP range entry — verify firewall/NSG allows outbound UDP |
+| `[SKIP]` | Wildcard endpoint - cannot TCP test; verify DNS resolution manually |
+| `[INFO]` | UDP or IP range entry - verify firewall/NSG allows outbound UDP |
 
 ---
 
@@ -99,7 +99,7 @@ At the end, a summary lists every failure, wildcard, and UDP/IP range entry that
 
 ### Intune endpoints
 
-Microsoft's documentation includes a caution that the Office 365 Endpoint API (`endpoints.office.com`) **no longer returns accurate data for Intune**. This script uses the static consolidated list from the Intune documentation directly — not the deprecated API.
+Microsoft's documentation includes a caution that the Office 365 Endpoint API (`endpoints.office.com`) **no longer returns accurate data for Intune**. This script uses the static consolidated list from the Intune documentation directly - not the deprecated API.
 
 ---
 
@@ -140,10 +140,10 @@ If Microsoft update their network requirements and something needs adding or cha
 
 ## Legal
 
-This script is provided under the [MIT License](LICENSE) — free to use, modify, and distribute.
+This script is provided under the [MIT License](LICENSE) - free to use, modify, and distribute.
 
 It is provided as-is, without warranty of any kind. Always review scripts before running them in your environment. This tool is not affiliated with or endorsed by Microsoft.
 
 ---
 
-*[bowker.cloud](https://bowker.cloud) — Cutting Through the Endpoint Chaos*
+*[bowker.cloud](https://bowker.cloud) - Cutting Through the Endpoint Chaos*
