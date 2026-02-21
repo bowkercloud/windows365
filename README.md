@@ -1,4 +1,4 @@
-# Windows 365 & AVD Network Health Check
+# Windows 365 Network Health Check
 
 A PowerShell script that tests connectivity to every endpoint required for Windows 365 and Azure Virtual Desktop — covering the Cloud PC host network, the end user client device, Intune, and Windows Autopilot.
 
