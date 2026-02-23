@@ -202,20 +202,23 @@ function Test-EndpointList {
 function Write-Summary {
     param([array]$Results)
 
-    $ok       = ($Results | Where-Object { $_.Status -eq 'OK'      }).Count
-    $fail     = ($Results | Where-Object { $_.Status -eq 'FAIL'    }).Count
-    $wildcard = ($Results | Where-Object { $_.Status -eq 'WILDCARD'}).Count
-    $udponly  = ($Results | Where-Object { $_.Status -in 'IPRANGE','UDPONLY' }).Count
-    $total    = $Results.Count
+    $ok       = [int]($Results | Where-Object { $_.Status -eq 'OK'       } | Measure-Object).Count
+    $fail     = [int]($Results | Where-Object { $_.Status -eq 'FAIL'     } | Measure-Object).Count
+    $wildcard = [int]($Results | Where-Object { $_.Status -eq 'WILDCARD' } | Measure-Object).Count
+    $udponly  = [int]($Results | Where-Object { $_.Status -in 'IPRANGE','UDPONLY' } | Measure-Object).Count
+    $total    = [int]($Results | Measure-Object).Count
 
     Write-Host ""
     Write-Host "─────────────────────────────────────────────────────" -ForegroundColor DarkGray
     Write-Host "  RESULTS SUMMARY" -ForegroundColor White
     Write-Host "─────────────────────────────────────────────────────" -ForegroundColor DarkGray
     Write-Host "  Total entries  : $total"
-    $failColor = if ($fail -gt 0) { 'Red' } else { 'Green' }
-    Write-Host "  OK             : $ok"   -ForegroundColor Green
-    Write-Host "  FAILED         : $fail" -ForegroundColor $failColor
+    Write-Host "  OK             : $ok" -ForegroundColor Green
+    if ($fail -gt 0) {
+        Write-Host "  FAILED         : $fail" -ForegroundColor Red
+    } else {
+        Write-Host "  FAILED         : $fail" -ForegroundColor Green
+    }
     Write-Host "  Wildcards      : $wildcard  (verify DNS resolution manually)"         -ForegroundColor DarkYellow
     Write-Host "  UDP/IP Ranges  : $udponly   (verify firewall/NSG allows UDP outbound)" -ForegroundColor DarkCyan
     Write-Host "─────────────────────────────────────────────────────" -ForegroundColor DarkGray
