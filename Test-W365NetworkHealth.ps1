@@ -213,10 +213,8 @@ function Write-Summary {
     Write-Host "  RESULTS SUMMARY" -ForegroundColor White
     Write-Host "─────────────────────────────────────────────────────" -ForegroundColor DarkGray
     Write-Host "  Total entries  : $total"
-    Write-Host "  OK             : " -ForegroundColor White -NoNewline
-    Write-Host $ok                   -ForegroundColor Green
-    Write-Host "  FAILED         : " -ForegroundColor White -NoNewline
-    Write-Host $fail                 -ForegroundColor $(if ($fail -gt 0) { 'Red' } else { 'White' })
+    Write-Host "  OK             : $ok"   -ForegroundColor Green
+    Write-Host "  FAILED         : $fail" -ForegroundColor $(if ($fail -gt 0) { 'Red' } else { 'Green' })
     Write-Host "  Wildcards      : $wildcard  (verify DNS resolution manually)"         -ForegroundColor DarkYellow
     Write-Host "  UDP/IP Ranges  : $udponly   (verify firewall/NSG allows UDP outbound)" -ForegroundColor DarkCyan
     Write-Host "─────────────────────────────────────────────────────" -ForegroundColor DarkGray
