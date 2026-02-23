@@ -129,7 +129,6 @@ Intune,Android AOSP,intunecdnpeasd.azureedge.net,443,TCP,CloudPC,,Android AOSP -
 Intune-Autopilot,Windows Update,*.delivery.mp.microsoft.com,443,TCP,CloudPC,Wildcard - cannot auto-test,Windows Autopilot - Delivery MP,https://learn.microsoft.com/en-us/intune/intune-service/fundamentals/intune-endpoints
 Intune-Autopilot,WNS,c.s-microsoft.com,443,TCP,CloudPC,,Windows Autopilot - WNS dependency (specific node alongside *.s-microsoft.com),https://learn.microsoft.com/en-us/intune/intune-service/fundamentals/intune-endpoints
 Client-AVD-CertCA,Certificate Authority,cacerts.digicert.com,80,TCP,Client,,DigiCert CA certificate downloads (AIA),https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-certificate-authority-details
-Client-AVD-CertCA,Certificate Authority,crl.digicert.com,80,TCP,Client,,DigiCert CRL distribution point,https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-certificate-authority-details
 Client-AVD-CertCA,Certificate Authority,crl3.digicert.com,80,TCP,Client,,DigiCert CRL distribution point,https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-certificate-authority-details
 Client-AVD-CertCA,Certificate Authority,crl4.digicert.com,80,TCP,Client,,DigiCert CRL distribution point,https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-certificate-authority-details
 Client-AVD-CertCA,Certificate Authority,ocsp.digicert.com,80,TCP,Client,,DigiCert OCSP responder,https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-certificate-authority-details

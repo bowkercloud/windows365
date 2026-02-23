@@ -307,7 +307,6 @@ function Get-BuiltInEndpoints {
         # Source: https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-certificate-authority-details
         # Note: oneocsp.microsoft.com and www.microsoft.com already covered above in Client-AVD certs
         [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='cacerts.digicert.com'; Port=80; TestMode='Client'; Notes='DigiCert CA certificate downloads (AIA)' }
-        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='crl.digicert.com';    Port=80; TestMode='Client'; Notes='DigiCert CRL distribution point' }
         [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='crl3.digicert.com';   Port=80; TestMode='Client'; Notes='DigiCert CRL distribution point' }
         [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='crl4.digicert.com';   Port=80; TestMode='Client'; Notes='DigiCert CRL distribution point' }
         [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='ocsp.digicert.com';   Port=80; TestMode='Client'; Notes='DigiCert OCSP responder' }
