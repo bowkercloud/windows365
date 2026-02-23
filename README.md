@@ -48,7 +48,7 @@ Network connectivity issues are one of the most common causes of Windows 365 pro
 
 ## Running the Script
 
-**From a PowerShell 7 prompt (recommended for Cloud PCs):**
+**From a PowerShell 7 prompt (recommended):**
 
 ```powershell
 irm https://bowker.cloud/w365check | iex
