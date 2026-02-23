@@ -306,10 +306,17 @@ function Get-BuiltInEndpoints {
         # ── Client - Azure CA Certificate checks (closed network) ───────────
         # Source: https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-certificate-authority-details
         # Note: oneocsp.microsoft.com and www.microsoft.com already covered above in Client-AVD certs
-        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='cacerts.digicert.com'; Port=80; TestMode='Client'; Notes='DigiCert CA certificate downloads (AIA)' }
-        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='crl3.digicert.com';   Port=80; TestMode='Client'; Notes='DigiCert CRL distribution point' }
-        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='crl4.digicert.com';   Port=80; TestMode='Client'; Notes='DigiCert CRL distribution point' }
-        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='ocsp.digicert.com';   Port=80; TestMode='Client'; Notes='DigiCert OCSP responder' }
+        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='cacerts.digicert.com';   Port=80; TestMode='Client'; Notes='AIA - DigiCert CA certificate downloads' }
+        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='cacerts.digicert.cn';    Port=80; TestMode='Client'; Notes='AIA - DigiCert CA certificate downloads (CN)' }
+        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='cacerts.geotrust.com';   Port=80; TestMode='Client'; Notes='AIA - GeoTrust CA certificate downloads' }
+        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='caissuers.microsoft.com'; Port=80; TestMode='Client'; Notes='AIA - Microsoft CA certificate downloads' }
+        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='www.microsoft.com';      Port=80; TestMode='Client'; Notes='AIA and CRL - Microsoft certificate downloads' }
+        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='crl3.digicert.com';      Port=80; TestMode='Client'; Notes='CRL - DigiCert CRL distribution point' }
+        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='crl4.digicert.com';      Port=80; TestMode='Client'; Notes='CRL - DigiCert CRL distribution point' }
+        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='crl.digicert.cn';        Port=80; TestMode='Client'; Notes='CRL - DigiCert CRL distribution point (CN)' }
+        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='ocsp.digicert.com';      Port=80; TestMode='Client'; Notes='OCSP - DigiCert OCSP responder' }
+        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='ocsp.digicert.cn';       Port=80; TestMode='Client'; Notes='OCSP - DigiCert OCSP responder (CN)' }
+        [PSCustomObject]@{ Category='Client-AVD-CertCA'; Subcategory='Certificate Authority'; Endpoint='oneocsp.microsoft.com';  Port=80; TestMode='Client'; Notes='OCSP - Microsoft OCSP responder' }
 
         # ── Intune Core Service ──────────────────────────────────────────────
         # NOTE: Static list per Microsoft documentation. The endpoints.office.com API
