@@ -14,7 +14,7 @@ Inspired by [Shannon Fritz's original gist](https://gist.github.com/shannonfritz
 
 Network connectivity issues are one of the most common causes of Windows 365 provisioning failures and poor Cloud PC experiences. Microsoft's requirements are spread across four separate documentation pages. This script brings them all together and tests them in one run.
 
-**134 endpoints** across:
+**143 endpoints** across:
 
 - Windows 365 service (provisioning, IoT hubs, registration)
 - AVD session host endpoints - required and optional
@@ -106,7 +106,7 @@ Microsoft's documentation includes a caution that the Office 365 Endpoint API (`
 | File | Description |
 |------|-------------|
 | `Test-W365NetworkHealth.ps1` | The script |
-| `Endpoints.csv` | All 134 endpoints with category, port, protocol, test mode, and documentation reference |
+| `Endpoints.csv` | All 143 endpoints with category, port, protocol, test mode, and documentation reference |
 
 ---
 
