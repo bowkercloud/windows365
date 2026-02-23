@@ -214,11 +214,11 @@ function Write-Summary {
     Write-Host "─────────────────────────────────────────────────────" -ForegroundColor DarkGray
     Write-Host "  Total entries  : $total"
     Write-Host "  OK             : $ok" -ForegroundColor Green
-    $failStr = "$fail"
+    $failLine = "  FAILED         : " + $fail.ToString()
     if ($fail -gt 0) {
-        Write-Host "  FAILED         : $failStr" -ForegroundColor Red
+        Write-Host $failLine -ForegroundColor Red
     } else {
-        Write-Host "  FAILED         : $failStr" -ForegroundColor Green
+        Write-Host $failLine -ForegroundColor Green
     }
     Write-Host "  Wildcards      : $wildcard  (verify DNS resolution manually)"         -ForegroundColor DarkYellow
     Write-Host "  UDP/IP Ranges  : $udponly   (verify firewall/NSG allows UDP outbound)" -ForegroundColor DarkCyan
