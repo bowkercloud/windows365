@@ -106,7 +106,7 @@ Microsoft's documentation includes a caution that the Office 365 Endpoint API (`
 | File | Description |
 |------|-------------|
 | `Test-W365NetworkHealth.ps1` | The script |
-| `Endpoints.csv` | All 143 endpoints with category, port, protocol, test mode, and documentation reference |
+| `Endpoints.csv` | Over 200 endpoints with category, port, protocol, test mode, and documentation reference |
 
 ---
 
