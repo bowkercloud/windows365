@@ -88,6 +88,7 @@ function Test-Endpoint {
     param(
         [string]$Hostname,
         [int]$Port,
+        [string]$Protocol = 'TCP',
         [string]$Notes = '',
         [string]$Category = ''
     )
@@ -111,14 +112,27 @@ function Test-Endpoint {
         return $result
     }
 
-    # IP ranges (CIDR) and UDP-only entries cannot be meaningfully TCP-tested
+    # IP ranges (CIDR) - UDP ranges flag as INFO, TCP ranges extract base IP and test
     if ($Hostname -match '/\d+$') {
-        $result.Status = 'IPRANGE'
-        $pad = [string]::new(' ', [Math]::Max(0, 55 - ($Hostname.Length + $Port.ToString().Length)))
-        Write-Host "  [" -NoNewline
-        Write-Host "INFO" -ForegroundColor DarkCyan -NoNewline
-        Write-Host "] $Hostname  UDP:$Port$pad (IP range - verify firewall/NSG allows UDP $Port outbound)" -ForegroundColor DarkCyan
-        return $result
+        if ($Protocol -eq 'UDP' -or $Port -eq 3478) {
+            $result.Status = 'IPRANGE'
+            $pad = [string]::new(' ', [Math]::Max(0, 55 - ($Hostname.Length + $Port.ToString().Length)))
+            Write-Host "  [" -NoNewline
+            Write-Host "INFO" -ForegroundColor DarkCyan -NoNewline
+            Write-Host "] $Hostname  UDP:$Port$pad (IP range - verify firewall/NSG allows UDP $Port outbound)" -ForegroundColor DarkCyan
+            return $result
+        }
+        # IPv6 ranges cannot be easily tested - flag as INFO
+        if ($Hostname -match ':') {
+            $result.Status = 'IPRANGE'
+            $pad = [string]::new(' ', [Math]::Max(0, 55 - ($Hostname.Length + $Port.ToString().Length)))
+            Write-Host "  [" -NoNewline
+            Write-Host "INFO" -ForegroundColor DarkCyan -NoNewline
+            Write-Host "] $Hostname  TCP:$Port$pad (IPv6 range - verify firewall allows IPv6 outbound)" -ForegroundColor DarkCyan
+            return $result
+        }
+        # TCP IP ranges - extract base IP and test connectivity
+        $Hostname = $Hostname -replace '/\d+$', ''
     }
 
     # time.windows.com is UDP/123 - flag rather than TCP test
@@ -187,7 +201,7 @@ function Test-EndpointList {
             $ports = $ep.Port -split ','
             foreach ($port in $ports) {
                 $portNum = [int]$port.Trim()
-                $r = Test-Endpoint -Hostname $ep.Endpoint.Trim() -Port $portNum -Notes $ep.Notes -Category $ep.Category
+                $r = Test-Endpoint -Hostname $ep.Endpoint.Trim() -Port $portNum -Protocol $ep.Protocol -Notes $ep.Notes -Category $ep.Category
                 $allResults += $r
             }
         }
@@ -353,6 +367,182 @@ function Get-BuiltInEndpoints {
         [PSCustomObject]@{ Category='Intune'; Subcategory='WNS Push';               Endpoint='sin.notify.windows.com';                  Port=443;  TestMode='CloudPC'; Notes='Windows Push Notification - Singapore notify node' }
         [PSCustomObject]@{ Category='Intune'; Subcategory='Android AOSP';           Endpoint='intunecdnpeasd.azureedge.net';             Port=443;  TestMode='CloudPC'; Notes='Android AOSP - legacy domain (migrating to manage.microsoft.com)' }
         [PSCustomObject]@{ Category='Intune'; Subcategory='Android AOSP';           Endpoint='intunecdnpeasd.manage.microsoft.com';     Port=443;  TestMode='CloudPC'; Notes='Android AOSP device management' }
+
+        # ── Intune IP Ranges (ID 163 - Allow Required) ───────────────────────
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.145.74.224/27';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.150.254.64/27';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.154.145.224/27';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.200.254.32/27';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.207.244.0/27';     Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.213.25.64/27';     Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.213.86.128/25';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.216.205.32/27';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.237.143.128/25';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.67.13.176/28';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.67.15.128/27';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.69.67.224/28';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.69.231.128/28';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.70.78.128/28';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.70.79.128/27';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.74.111.192/27';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.77.53.176/28';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.86.221.176/28';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.89.174.240/28';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.89.175.192/28';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.37.153.0/24';     Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.37.192.128/25';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.38.81.0/24';      Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.41.1.0/24';       Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.42.1.0/24';       Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.42.130.0/24';     Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.42.224.128/25';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.43.129.0/24';     Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.44.19.224/27';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.91.147.72/29';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.168.189.128/27';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.189.172.160/27';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.189.229.0/25';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.191.167.0/25';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.192.159.40/29';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.192.174.216/29';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.199.207.192/28';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.204.193.10/31';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.204.193.12/30';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.204.194.128/31';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.208.149.192/27';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.208.157.128/27';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.214.131.176/29';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.67.121.224/27';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.70.151.32/28';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.71.14.96/28';     Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.74.25.0/24';      Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.78.245.240/28';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.78.247.128/27';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.79.197.64/27';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.79.197.96/28';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.80.180.208/28';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.80.180.224/27';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.80.184.128/25';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.82.248.224/28';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.82.249.128/25';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.84.70.128/25';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.119.8.128/25';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='48.218.252.128/25';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='52.150.137.0/25';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='52.162.111.96/28';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='52.168.116.128/27';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='52.182.141.192/27';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='52.236.189.96/27';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='52.240.244.160/27';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='57.151.0.192/27';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='57.153.235.0/25';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='57.154.140.128/25';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='57.154.195.0/25';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='57.155.45.128/25';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='68.218.134.96/27';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='74.224.214.64/27';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='74.242.35.0/25';     Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='104.46.162.96/27';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='104.208.197.64/27';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='172.160.217.160/27'; Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='172.201.237.160/27'; Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='172.202.86.192/27';  Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='172.205.63.0/25';    Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='172.212.214.0/25';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='172.215.131.0/27';   Port=443; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges - Azure Front Door'; Endpoint='13.107.219.0/24'; Port=443; TestMode='CloudPC'; Notes='Intune Azure Front Door endpoint' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges - Azure Front Door'; Endpoint='13.107.227.0/24'; Port=443; TestMode='CloudPC'; Notes='Intune Azure Front Door endpoint' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges - Azure Front Door'; Endpoint='13.107.228.0/23'; Port=443; TestMode='CloudPC'; Notes='Intune Azure Front Door endpoint' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges - Azure Front Door'; Endpoint='150.171.97.0/24'; Port=443; TestMode='CloudPC'; Notes='Intune Azure Front Door endpoint' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges - IPv6'; Endpoint='2620:1ec:40::/48'; Port=443; TestMode='CloudPC'; Notes='Intune IPv6 range' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges - IPv6'; Endpoint='2620:1ec:49::/48'; Port=443; TestMode='CloudPC'; Notes='Intune IPv6 range' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges - IPv6'; Endpoint='2620:1ec:4a::/47'; Port=443; TestMode='CloudPC'; Notes='Intune IPv6 range' }
+
+[PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.145.74.224/27';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.150.254.64/27';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.154.145.224/27';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.200.254.32/27';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.207.244.0/27';     Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.213.25.64/27';     Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.213.86.128/25';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.216.205.32/27';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='4.237.143.128/25';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.67.13.176/28';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.67.15.128/27';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.69.67.224/28';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.69.231.128/28';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.70.78.128/28';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.70.79.128/27';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.74.111.192/27';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.77.53.176/28';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.86.221.176/28';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.89.174.240/28';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='13.89.175.192/28';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.37.153.0/24';     Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.37.192.128/25';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.38.81.0/24';      Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.41.1.0/24';       Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.42.1.0/24';       Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.42.130.0/24';     Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.42.224.128/25';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.43.129.0/24';     Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.44.19.224/27';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.91.147.72/29';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.168.189.128/27';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.189.172.160/27';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.189.229.0/25';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.191.167.0/25';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.192.159.40/29';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.192.174.216/29';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.199.207.192/28';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.204.193.10/31';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.204.193.12/30';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.204.194.128/31';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.208.149.192/27';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.208.157.128/27';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='20.214.131.176/29';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.67.121.224/27';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.70.151.32/28';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.71.14.96/28';     Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.74.25.0/24';      Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.78.245.240/28';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.78.247.128/27';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.79.197.64/27';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.79.197.96/28';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.80.180.208/28';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.80.180.224/27';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.80.184.128/25';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.82.248.224/28';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.82.249.128/25';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.84.70.128/25';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='40.119.8.128/25';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='48.218.252.128/25';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='52.150.137.0/25';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='52.162.111.96/28';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='52.168.116.128/27';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='52.182.141.192/27';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='52.236.189.96/27';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='52.240.244.160/27';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='57.151.0.192/27';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='57.153.235.0/25';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='57.154.140.128/25';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='57.154.195.0/25';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='57.155.45.128/25';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='68.218.134.96/27';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='74.224.214.64/27';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='74.242.35.0/25';     Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='104.46.162.96/27';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='104.208.197.64/27';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='172.160.217.160/27'; Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='172.201.237.160/27'; Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='172.202.86.192/27';  Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='172.205.63.0/25';    Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='172.212.214.0/25';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges'; Endpoint='172.215.131.0/27';   Port=80; TestMode='CloudPC'; Notes='Intune client and host service (ID 163)' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges - Azure Front Door'; Endpoint='13.107.219.0/24'; Port=80; TestMode='CloudPC'; Notes='Intune Azure Front Door endpoint' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges - Azure Front Door'; Endpoint='13.107.227.0/24'; Port=80; TestMode='CloudPC'; Notes='Intune Azure Front Door endpoint' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges - Azure Front Door'; Endpoint='13.107.228.0/23'; Port=80; TestMode='CloudPC'; Notes='Intune Azure Front Door endpoint' }
+        [PSCustomObject]@{ Category='Intune'; Subcategory='IP Ranges - Azure Front Door'; Endpoint='150.171.97.0/24'; Port=80; TestMode='CloudPC'; Notes='Intune Azure Front Door endpoint' }
 
         # ── Intune Autopilot ─────────────────────────────────────────────────
         [PSCustomObject]@{ Category='Intune-Autopilot'; Subcategory='Windows Update'; Endpoint='tsfe.trafficshaping.dsp.mp.microsoft.com'; Port=443; TestMode='CloudPC'; Notes='Autopilot traffic shaping' }
