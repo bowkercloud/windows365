@@ -14,7 +14,7 @@ Inspired by [Shannon Fritz's original gist](https://gist.github.com/shannonfritz
 
 Network connectivity issues are one of the most common causes of Windows 365 provisioning failures and poor Cloud PC experiences. Microsoft's requirements are spread across four separate documentation pages. This script brings them all together and tests them in one run.
 
-**143 endpoints** across:
+**Over 200 endpoints** across:
 
 - Windows 365 service (provisioning, IoT hubs, registration)
 - AVD session host endpoints - required and optional
